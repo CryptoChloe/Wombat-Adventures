@@ -83,22 +83,37 @@
         registerBtn.onclick = () => { registerPopup.style.display = 'flex'; };
         registerCancel.onclick = () => { registerPopup.style.display = 'none'; };
         registerOk.onclick = () => {
-            const username = document.getElementById('reg-username').value;
+            const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
-            const email = document.getElementById('reg-email').value;
-            // Save logic placeholder (to be replaced with DB integration)
+            const email = document.getElementById('reg-email').value.trim();
+            if (!username || !password || !email) {
+                alert('Please fill in all fields.');
+                return;
+            }
+            // Load users from localStorage
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            // Check if username already exists
+            if (users.some(u => u.username === username)) {
+                alert('Username already exists.');
+                return;
+            }
+            // Save new user
+            users.push({ username, password, email });
+            localStorage.setItem('users', JSON.stringify(users));
             registerPopup.style.display = 'none';
             registerMsgText.innerHTML = `Registered!<br>Username: ${username},<br>Email: ${email}`;
             registerMsgPopup.style.display = 'flex';
         };
         registerMsgOk.onclick = () => { registerMsgPopup.style.display = 'none'; };
 
-        // Hardcoded login for testing
+        // Login using localStorage users
         loginForm.onsubmit = function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            if (username === 'test' && password === '1234') {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
                 window.location.href = 'characterselection.html';
             } else {
                 alert('Invalid username or password.');

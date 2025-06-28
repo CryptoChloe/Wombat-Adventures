@@ -16,7 +16,7 @@
         .char-container {
             width: 350px;
             height: 500px;
-            background: rgba(255,255,255,0.85);
+            background: rgba(71, 70, 70, 0.85);
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.12);
             padding: 24px;
@@ -31,7 +31,7 @@
         .char-card {
             width: 240px;
             height: 360px;
-            background: #e6e6e6;
+            background: #312f2f;
             border-radius: 10px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.10);
             margin: 0 18px;
@@ -40,7 +40,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
-            color: #333;
+            color: #ffffff;
         }
         #startchar {
             margin-top: 20px;
@@ -242,6 +242,7 @@
             const savedContainer = document.getElementById('saved-characters');
             savedContainer.innerHTML = '<h2>Saved Characters</h2>';
             let saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+            const maxChars = 3;
             if (saved.length === 0) {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.style.textAlign = 'center';
@@ -250,6 +251,14 @@
                 savedContainer.appendChild(emptyMsg);
                 return;
             }
+            // Show count below the header and above the cards
+            const countMsg = document.createElement('div');
+            countMsg.style.textAlign = 'center';
+            countMsg.style.margin = '0px 0 18px 0';
+            countMsg.style.fontSize = '1.08rem';
+            countMsg.style.color = '#e0e0e0';
+            countMsg.textContent = `Saved characters: ${saved.length} / ${maxChars}`;
+            savedContainer.appendChild(countMsg);
             saved.forEach((char, idx) => {
                 const cardRow = document.createElement('div');
                 cardRow.style.display = 'flex';
@@ -261,13 +270,13 @@
                 const card = document.createElement('div');
                 card.className = 'char-card';
                 card.style.margin = '0';
-                card.style.width = '220px';
+                card.style.width = '260px';
                 card.style.height = '80px';
                 card.style.display = 'flex'; // horizontal layout
                 card.style.flexDirection = 'row'; // ensure horizontal
                 card.style.alignItems = 'center';
                 card.style.justifyContent = 'flex-start';
-                card.style.background = '#e6e6e6';
+                card.style.background = '#312f2f';
                 card.style.boxShadow = '0 1px 6px rgba(0,0,0,0.10)';
                 card.style.padding = '10px 12px';
                 card.style.borderRadius = '10px';
@@ -284,13 +293,15 @@
                 // Left container: character image (circle)
                 const left = document.createElement('div');
                 left.style.display = 'flex';
-                left.style.flexDirection = 'row'; // ensure horizontal
+                left.style.flexDirection = 'row';
                 left.style.alignItems = 'center';
                 left.style.justifyContent = 'center';
                 left.style.width = '64px';
                 left.style.height = '64px';
-                left.style.border = '2px solid #888'; // Add outline to left container
-                left.style.borderRadius = '8px';
+                left.style.minWidth = '64px';
+                left.style.maxWidth = '64px';
+                left.style.minHeight = '64px';
+                left.style.maxHeight = '64px';
                 const img = document.createElement('img');
                 img.src = char.img;
                 img.alt = char.characterclass;
@@ -308,11 +319,15 @@
                 right.style.justifyContent = 'center';
                 right.style.alignItems = 'flex-start';
                 right.style.marginLeft = '16px';
-                right.style.border = '2px solid #888'; // Add outline to right container
-                right.style.borderRadius = '8px';
                 right.style.padding = '4px 8px';
+                right.style.width = '150px';
+                right.style.minWidth = '150px';
+                right.style.maxWidth = '150px';
+                right.style.height = '56px';
+                right.style.minHeight = '56px';
+                right.style.maxHeight = '56px';
                 right.innerHTML = `
-                    <div style="font-weight:bold;font-size:1.1rem;">${char.name}</div>
+                    <div style="font-weight:bold;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${char.name}</div>
                     <div style="font-size:0.95rem;margin-top:2px;">Level ${char.level}</div>
                     <div style="font-size:0.95rem;">${char.characterclass}</div>
                 `;
@@ -322,10 +337,10 @@
 
                 // Delete button
                 const delBtn = document.createElement('button');
-                delBtn.textContent = 'Delete';
+                delBtn.textContent = '🗑️';
                 delBtn.style.marginLeft = '18px';
                 delBtn.style.padding = '8px 16px';
-                delBtn.style.fontSize = '1rem';
+                delBtn.style.fontSize = '1.2rem';
                 delBtn.style.border = 'none';
                 delBtn.style.borderRadius = '4px';
                 delBtn.style.background = '#b22222';
