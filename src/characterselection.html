@@ -116,6 +116,7 @@
     </style>
 </head>
 <body>
+    <button id="logoutBtn" style="position:fixed;top:24px;right:36px;z-index:2000;padding:10px 24px;font-size:1rem;border:none;border-radius:5px;background:#b22222;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.10);">Logout</button>
     <h1>Select Your Character</h1>
     <div class="container-row">
         <div class="char-container" id="select-character">
@@ -143,6 +144,19 @@
             <div class="popup-buttons">
                 <button id="charNameCancel" type="button">Cancel</button>
                 <button id="charNameOk" type="button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add popup for delete confirmation only once -->
+    <div class="popup" id="deleteCharPopup">
+        <div class="popup-content">
+            <h2>Confirm Deletion</h2>
+            <div id="deleteCharMsg" style="margin-bottom:10px;"></div>
+            <input type="text" id="deleteCharInput" placeholder="Type character name to confirm" style="width:90%;margin-bottom:10px;">
+            <div class="popup-buttons">
+                <button id="deleteCharCancel" type="button">Cancel</button>
+                <button id="deleteCharOk" type="button">OK</button>
             </div>
         </div>
     </div>
@@ -219,7 +233,9 @@
             localStorage.setItem('savedCharacters', JSON.stringify(saved));
             charNamePopup.style.display = 'none';
             // Optionally, refresh saved characters UI here
-            location.reload(); // quick way to update UI
+            // location.reload(); // quick way to update UI
+            // Redirect to game.html with the new character index
+            window.location.href = 'game.html';
         };
         // Render saved characters
         function renderSavedCharacters() {
@@ -256,6 +272,14 @@
                 card.style.padding = '10px 12px';
                 card.style.borderRadius = '10px';
                 card.style.border = '2px solid #4a4a4a'; // Add outline
+                card.style.cursor = 'pointer';
+
+                // Card click: go to game.html with selected character index
+                card.onclick = function(e) {
+                    // Prevent click if delete button is pressed
+                    if (e.target.tagName.toLowerCase() === 'button') return;
+                    window.location.href = `game.html?char=${idx}`;
+                };
 
                 // Left container: character image (circle)
                 const left = document.createElement('div');
@@ -309,12 +333,32 @@
                 delBtn.style.cursor = 'pointer';
                 delBtn.onmouseenter = () => delBtn.style.background = '#d32f2f';
                 delBtn.onmouseleave = () => delBtn.style.background = '#b22222';
-                delBtn.onclick = function() {
-                    if (confirm(`Delete character '${char.name}'? This cannot be undone.`)) {
+                delBtn.onclick = function(e) {
+                    e.stopPropagation(); // Prevent bubbling
+                    // Show popup for confirmation
+                    const deletePopup = document.getElementById('deleteCharPopup');
+                    const deleteMsg = document.getElementById('deleteCharMsg');
+                    const deleteInput = document.getElementById('deleteCharInput');
+                    const deleteOk = document.getElementById('deleteCharOk');
+                    const deleteCancel = document.getElementById('deleteCharCancel');
+                    deleteMsg.textContent = `Type the name of the character ('${char.name}') to confirm deletion.`;
+                    deleteInput.value = '';
+                    deleteOk.disabled = true;
+                    deletePopup.style.display = 'flex';
+                    deleteInput.focus();
+                    // Enable OK only if name matches
+                    deleteInput.oninput = function() {
+                        deleteOk.disabled = (deleteInput.value.trim() !== char.name);
+                    };
+                    deleteCancel.onclick = function() {
+                        deletePopup.style.display = 'none';
+                    };
+                    deleteOk.onclick = function() {
                         saved.splice(idx, 1);
                         localStorage.setItem('savedCharacters', JSON.stringify(saved));
+                        deletePopup.style.display = 'none';
                         renderSavedCharacters();
-                    }
+                    };
                 };
 
                 cardRow.appendChild(card);
@@ -325,6 +369,14 @@
         // Initial render
         renderCharacter();
         renderSavedCharacters();
+
+        // Logout button handler
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function() {
+                window.location.href = 'index.html';
+            };
+        }
     </script>
 </body>
 </html>

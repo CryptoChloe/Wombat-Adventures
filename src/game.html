@@ -5,10 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game - Wombat Adventures</title>
     <link rel="stylesheet" href="gamestyles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            min-height: 100vh;
+            display: flex;
+        }
+        .side-menu {
+            width: 180px;
+            background: #024b0c;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            padding-top: 60px; /* space for top menu */
+        }
+        .side-menu a {
+            color: #fff;
+            text-decoration: none;
+            padding: 18px 24px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #28543c;
+            transition: background 0.2s;
+        }
+        .side-menu a:hover {
+            background: #28543c;
+        }
+        .top-menu {
+            position: fixed;
+            top: 0;
+            left: 180px;
+            right: 0;
+            height: 60px;
+            background: #024b0c;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            z-index: 101;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .main-content {
+            margin-left: 180px;
+            margin-top: 60px;
+            padding: 32px;
+            flex: 1;
+            background: #f7f7f7;
+            min-height: calc(100vh - 60px);
+        }
+    </style>
 </head>
 <body>
-    <h1>Wombat Adventures Game</h1>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script src="main.js"></script>
+    <nav class="side-menu">
+        <div id="sideCharInfo" style="display:flex;flex-direction:column;align-items:center;padding:18px 0 12px 0;">
+            <img id="sideCharImg" src="" alt="Character" style="width:144px;height:192px;border-radius:8px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);margin-bottom:10px;display:none;">
+            <div id="sideCharLevel" style="font-size:1.1rem;font-weight:bold;margin-bottom:4px;display:none;"></div>
+            <div id="sideCharClass" style="font-size:1rem;color:#e0e0e0;display:none;"></div>
+        </div>
+        <a href="#">Inventory</a>
+        <a href="#">Shop</a>
+    </nav>
+    <header class="top-menu">
+        <span style="font-size:1.3rem;font-weight:bold;">Wombat Adventures</span>
+        <div style="flex:1;"></div>
+        <div id="plaiBalanceDisplay" style="margin-right:24px;font-size:1.08rem;background:#1a7f3c;border-radius:4px;padding:7px 18px;color:#fff;display:flex;align-items:center;gap:6px;">
+            <img src="../assets/sprites/plai.png" alt="PLAI" style="width:22px;height:22px;vertical-align:middle;"> 
+            <span id="plaiBalance">0.00</span> PLAI
+        </div>
+        <button id="connectWalletBtn" style="margin-right:16px;padding:8px 18px;font-size:1rem;border:none;border-radius:4px;background:#1a7f3c;color:#fff;cursor:pointer;transition:background 0.2s;">Connect Wallet</button>
+        <button id="quitGameBtn" style="padding:8px 18px;font-size:1rem;border:none;border-radius:4px;background:#b22222;color:#fff;cursor:pointer;transition:background 0.2s;">Quit game</button>
+    </header>
+    <main class="main-content">
+        <!-- Game content goes here -->
+    </main>
+    <script>
+        // Optional: Add button handlers
+        const quitBtn = document.getElementById('quitGameBtn');
+        if (quitBtn) {
+            quitBtn.onclick = function() {
+                if (confirm('Are you sure you want to quit the game?')) {
+                    window.location.href = 'characterselection.html';
+                }
+            };
+        }
+        const walletBtn = document.getElementById('connectWalletBtn');
+        if (walletBtn) {
+            walletBtn.onclick = function() {
+                alert('Wallet connection coming soon!');
+            };
+        }
+        // Example: Set PLAI balance (replace with real value from wallet later)
+        document.getElementById('plaiBalance').textContent = '123.45';
+
+        // Load selected character from URL param and localStorage
+        function getQueryParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+        function showSideCharInfo() {
+            const idx = parseInt(getQueryParam('char'), 10);
+            let char = null;
+            if (!isNaN(idx)) {
+                const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+                if (saved[idx]) char = saved[idx];
+            }
+            if (char) {
+                const img = document.getElementById('sideCharImg');
+                const lvl = document.getElementById('sideCharLevel');
+                const cls = document.getElementById('sideCharClass');
+                img.src = char.img;
+                img.alt = char.characterclass;
+                img.style.display = '';
+                lvl.textContent = 'Level ' + char.level;
+                lvl.style.display = '';
+                cls.textContent = char.characterclass;
+                cls.style.display = '';
+            }
+        }
+        showSideCharInfo();
+    </script>
 </body>
 </html>
