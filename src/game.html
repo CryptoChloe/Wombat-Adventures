@@ -74,6 +74,7 @@
             </div>
             <div id="sideCharProps" style="width:144px;margin-top:10px;padding:7px 10px 7px 10px;font-size:1rem;color:#fff;display:none;"></div>
         </div>
+        <button id="sideInventoryBtn" style="width:144px;margin:16px auto 0 auto;padding:10px 0;background:#1a7f3c;color:#fff;border:none;border-radius:6px;font-size:1.05rem;font-weight:500;cursor:pointer;transition:background 0.2s;display:block;">Inventory</button>
     </nav>
     <header class="top-menu">
         <span style="font-size:1.3rem;font-weight:bold;">Wombat Adventures</span>
@@ -88,6 +89,31 @@
     <main class="main-content">
         <!-- Game content goes here -->
     </main>
+    <div class="inventory-popup" id="inventoryPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);width:1100px;max-width:99vw;background:rgba(34,34,34,0.93);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:3000;padding:2.2rem 2.5rem 2.5rem 2.5rem;">
+        <button class="close-btn" id="closeInventoryBtn" style="position:absolute;top:18px;right:24px;background:#0078d7;color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+        <h2 style="margin-top:0;margin-bottom:1.2rem;font-size:2.2rem;color:#fff;text-align:center;letter-spacing:1px;font-weight:bold;">Character Inventory</h2>
+        <div class="equipment-inventory-container" style="display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
+            <div class="equipment-section" style="display:flex;flex-direction:row;align-items:center;min-width:520px;justify-content:center;">
+                <!-- Left column: 4 slots -->
+                <div class="equipment-slots-col" style="display:flex;flex-direction:column;gap:15px;">
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Head</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Body</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Legs</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Boots</span></div>
+                </div>
+                <div class="equipment-avatar" id="equipmentAvatar" style="width:288px;height:384px;border-radius:18px;object-fit:contain;border:3px solid #0078d7;background:#fff;margin:0 32px;"></div>
+                <div class="equipment-slots-col" style="display:flex;flex-direction:column;gap:15px;">
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Amulet</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">L. Ring</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">R. Ring</span></div>
+                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Weapon</span></div>
+                </div>
+            </div>
+            <div class="inventory-section" style="flex:1;display:flex;flex-direction:column;align-items:center;width:520px;max-width:100%;box-sizing:border-box;">
+                <div class="inventory-grid" id="inventoryGrid" style="display:grid;grid-template-columns:repeat(7,64px);grid-template-rows:repeat(5,64px);gap:8px;margin-top:20px;margin-left:0;"></div>
+            </div>
+        </div>
+    </div>
     <script>
         // Optional: Add button handlers
         const quitBtn = document.getElementById('quitGameBtn');
@@ -152,6 +178,66 @@
             }
         }
         showSideCharInfo();
+
+        // Add inventory popup open/close logic
+        (function() {
+            const openBtn = document.getElementById('sideInventoryBtn');
+            const popup = document.getElementById('inventoryPopup');
+            const closeBtn = document.getElementById('closeInventoryBtn');
+            if (openBtn && popup && closeBtn) {
+                openBtn.addEventListener('click', function() {
+                    popup.style.display = '';
+                    // Set character image in inventory popup
+                    const equipmentAvatar = document.getElementById('equipmentAvatar');
+                    let char = null;
+                    const idx = parseInt(getQueryParam('char'), 10);
+                    if (!isNaN(idx)) {
+                        const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+                        if (saved[idx]) char = saved[idx];
+                    }
+                    if (equipmentAvatar) {
+                        if (char && char.img) {
+                            equipmentAvatar.innerHTML = `<img src="${char.img}" alt="Character" style="width:100%;height:100%;object-fit:contain;border-radius:14px;">`;
+                        } else {
+                            equipmentAvatar.innerHTML = '';
+                        }
+                    }
+                    // Render empty grid (replace [] with inventory items array if available)
+                    renderInventoryGrid([]);
+                });
+                closeBtn.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                });
+                // Close on Escape
+                document.addEventListener('keydown', function(e) {
+                    if (popup.style.display !== 'none' && (e.key === 'Escape' || e.key === 'Esc')) {
+                        popup.style.display = 'none';
+                    }
+                });
+            }
+        })();
+
+        // Populate inventory grid with 35 empty slots (7x5)
+        function renderInventoryGrid(items) {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 35; i++) {
+                let slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                slot.style.width = '64px';
+                slot.style.height = '64px';
+                slot.style.background = '#eaeaea';
+                slot.style.border = '2px solid #bbb';
+                slot.style.borderRadius = '14px';
+                slot.style.display = 'flex';
+                slot.style.alignItems = 'center';
+                slot.style.justifyContent = 'center';
+                slot.style.position = 'relative';
+                slot.style.overflow = 'hidden';
+                // If you want to show items, add logic here
+                grid.appendChild(slot);
+            }
+        }
     </script>
 </body>
 </html>
