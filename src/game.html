@@ -68,9 +68,12 @@
             <img id="sideCharImg" src="" alt="Character" style="width:144px;height:192px;border-radius:8px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.10);margin-bottom:10px;display:none;">
             <div id="sideCharLevel" style="font-size:1.1rem;font-weight:bold;margin-bottom:4px;display:none;"></div>
             <div id="sideCharClass" style="font-size:1rem;color:#e0e0e0;display:none;"></div>
+            <div id="sideCharXPBar" style="width:144px;height:22px;background:#222;border-radius:8px;margin-top:12px;position:relative;overflow:hidden;display:none;">
+                <div id="xpFill" style="height:100%;background:#1a7f3c;border-radius:8px;position:absolute;left:0;top:0;"></div>
+                <span id="xpText" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;font-weight:bold;font-size:0.78rem;"></span>
+            </div>
+            <div id="sideCharProps" style="width:144px;margin-top:10px;padding:7px 10px 7px 10px;font-size:1rem;color:#fff;display:none;"></div>
         </div>
-        <a href="#">Inventory</a>
-        <a href="#">Shop</a>
     </nav>
     <header class="top-menu">
         <span style="font-size:1.3rem;font-weight:bold;">Wombat Adventures</span>
@@ -125,6 +128,27 @@
                 lvl.style.display = '';
                 cls.textContent = char.characterclass;
                 cls.style.display = '';
+                // XP Progression Bar (update existing bar)
+                let xpBar = document.getElementById('sideCharXPBar');
+                let xpFill = document.getElementById('xpFill');
+                let xpText = document.getElementById('xpText');
+                if (xpBar && xpFill && xpText) {
+                    xpBar.style.display = '';
+                    const neededXP = char.level * 100;
+                    const percent = Math.min(100, Math.round((char.xp / neededXP) * 100));
+                    xpFill.style.width = percent + '%';
+                    xpText.textContent = `${char.xp} / ${neededXP} XP`;
+                }
+                // Character properties below XP bar
+                let propDiv = document.getElementById('sideCharProps');
+                if (propDiv) {
+                    propDiv.style.display = '';
+                    propDiv.innerHTML = `
+                        <div style='margin-bottom:6px;'><span style='color:#ffd700;'>Gold:</span> ${char.gold}</div>
+                        <div style='margin-bottom:6px;'><span style='color:#7adf7a;'>Statpoints:</span> ${char.statpoints}</div>
+                        <div><span style='color:#7ab7df;'>Skillpoints:</span> ${char.skillpoints}</div>
+                    `;
+                }
             }
         }
         showSideCharInfo();
