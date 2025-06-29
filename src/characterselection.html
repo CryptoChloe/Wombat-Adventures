@@ -163,6 +163,27 @@
 
     <script src="characterdata.js"></script>
     <script>
+        // Utility: get current username from localStorage (set by login.html)
+        function getCurrentUsername() {
+            return localStorage.getItem('currentUser');
+        }
+        // Utility: get per-user character key
+        function getUserCharacterKey(username) {
+            return 'savedCharacters_' + username;
+        }
+        // Load characters for current user
+        function loadUserCharacters() {
+            const username = getCurrentUsername();
+            if (!username) return [];
+            return JSON.parse(localStorage.getItem(getUserCharacterKey(username)) || '[]');
+        }
+        // Save characters for current user
+        function saveUserCharacters(chars) {
+            const username = getCurrentUsername();
+            if (!username) return;
+            localStorage.setItem(getUserCharacterKey(username), JSON.stringify(chars));
+        }
+
         let currentChar = 0;
         const charCard = document.getElementById('char-card');
         const charPrev = document.getElementById('char-prev');
@@ -214,34 +235,44 @@
             const name = charNameInput.value.trim();
             if (!name) return;
             // Get saved characters from localStorage
-            let saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+            let saved = loadUserCharacters();
             // Limit to 3 characters
             if (saved.length >= 3) {
                 alert('You can only save up to 3 characters.');
                 return;
             }
-            // Copy all properties from selected character
+            // Copy all properties from selected character, ensure all required fields are present
             const baseChar = characters[currentChar];
             const newChar = {
-                ...baseChar,
-                name: name,
+                characterclass: baseChar.characterclass || '',
+                img: baseChar.img || '',
+                description: baseChar.description || '',
+                health: baseChar.health || 0,
+                attack: baseChar.attack || 0,
+                elementalattack: baseChar.elementalattack || 0,
+                defense: baseChar.defense || 0,
                 xp: 0,
                 gold: 0,
-                level: 1
+                level: 1,
+                statpoints: baseChar.statpoints || 0,
+                skillpoints: baseChar.skillpoints || 0,
+                name: name,
+                inventory: (baseChar.starterItems ? [...baseChar.starterItems] : []), // inventory starts with starter items
+                equipped: {}, // always start with empty equipment
             };
             saved.push(newChar);
-            localStorage.setItem('savedCharacters', JSON.stringify(saved));
+            saveUserCharacters(saved);
             charNamePopup.style.display = 'none';
             // Optionally, refresh saved characters UI here
             // location.reload(); // quick way to update UI
             // Redirect to game.html with the new character index
-            window.location.href = 'game.html';
+            window.location.href = 'game.html?char=' + (saved.length - 1);
         };
         // Render saved characters
         function renderSavedCharacters() {
             const savedContainer = document.getElementById('saved-characters');
             savedContainer.innerHTML = '<h2>Saved Characters</h2>';
-            let saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+            let saved = loadUserCharacters();
             const maxChars = 3;
             if (saved.length === 0) {
                 const emptyMsg = document.createElement('div');
@@ -370,7 +401,7 @@
                     };
                     deleteOk.onclick = function() {
                         saved.splice(idx, 1);
-                        localStorage.setItem('savedCharacters', JSON.stringify(saved));
+                        saveUserCharacters(saved);
                         deletePopup.style.display = 'none';
                         renderSavedCharacters();
                     };

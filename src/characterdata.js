@@ -2,6 +2,13 @@
 // List of available characters for Wombat Adventures
 // Add new characters or properties as needed
 
+// Redirect to login if not logged in (for all pages that use character data)
+(function ensureLoggedIn() {
+    if (typeof localStorage !== 'undefined' && !localStorage.getItem('currentUser')) {
+        window.location.href = 'login.html';
+    }
+})();
+
 const characters = [
     {
         characterclass: 'Archer',
@@ -15,7 +22,9 @@ const characters = [
         gold: 0,
         level: 1,
         statpoints: 0,
-        skillpoints: 0
+        skillpoints: 0,
+        starterItems: ['sword_001'],
+        inventory: [] // inventory for saving/loading items
     },
     {
         characterclass: 'Mage',
@@ -29,7 +38,9 @@ const characters = [
         gold: 0,
         level: 1,
         statpoints: 0,
-        skillpoints: 0
+        skillpoints: 0,
+        starterItems: ['amulet_001'],
+        inventory: []
     },
     {
         characterclass: 'Warrior',
@@ -43,6 +54,8 @@ const characters = [
         gold: 0,
         level: 1,
         statpoints: 0,
-        skillpoints: 0
+        skillpoints: 0,
+        starterItems: ['armor_001'],
+        inventory: []
     }
 ];

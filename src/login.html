@@ -114,6 +114,7 @@
             let users = JSON.parse(localStorage.getItem('users') || '[]');
             const user = users.find(u => u.username === username && u.password === password);
             if (user) {
+                localStorage.setItem('currentUser', username); // Set current user for per-user storage
                 window.location.href = 'characterselection.html';
             } else {
                 alert('Invalid username or password.');

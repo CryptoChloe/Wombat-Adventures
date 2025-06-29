@@ -96,17 +96,17 @@
             <div class="equipment-section" style="display:flex;flex-direction:row;align-items:center;min-width:520px;justify-content:center;">
                 <!-- Left column: 4 slots -->
                 <div class="equipment-slots-col" style="display:flex;flex-direction:column;gap:15px;">
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Head</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Body</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Legs</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Boots</span></div>
+                    <div class="equip-slot" id="head" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Head</span></div>
+                    <div class="equip-slot" id="body" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Body</span></div>
+                    <div class="equip-slot" id="legs" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Legs</span></div>
+                    <div class="equip-slot" id="boots" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Boots</span></div>
                 </div>
                 <div class="equipment-avatar" id="equipmentAvatar" style="width:288px;height:384px;border-radius:18px;object-fit:contain;border:3px solid #0078d7;background:#fff;margin:0 32px;"></div>
                 <div class="equipment-slots-col" style="display:flex;flex-direction:column;gap:15px;">
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Amulet</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">L. Ring</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">R. Ring</span></div>
-                    <div class="equip-slot" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Weapon</span></div>
+                    <div class="equip-slot" id="amulet" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Amulet</span></div>
+                    <div class="equip-slot" id="lring" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">L. Ring</span></div>
+                    <div class="equip-slot" id="rring" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">R. Ring</span></div>
+                    <div class="equip-slot" id="weapon" style="width:64px;height:64px;background:#eaeaea;border:2px solid #bbb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;"><span class="equip-slot-label">Weapon</span></div>
                 </div>
             </div>
             <div class="inventory-section" style="flex:1;display:flex;flex-direction:column;align-items:center;width:520px;max-width:100%;box-sizing:border-box;">
@@ -114,7 +114,27 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="characterdata.js"></script>
+    <script src="items.js"></script>
     <script>
+        // --- Per-user character storage utilities (copied from characterselection.html) ---
+        function getCurrentUsername() {
+            return localStorage.getItem('currentUser') || null;
+        }
+        function getUserCharacterKey() {
+            const username = getCurrentUsername();
+            return username ? `savedCharacters_${username}` : 'savedCharacters';
+        }
+        function loadUserCharacters() {
+            const key = getUserCharacterKey();
+            return JSON.parse(localStorage.getItem(key) || '[]');
+        }
+        function saveUserCharacters(chars) {
+            const key = getUserCharacterKey();
+            localStorage.setItem(key, JSON.stringify(chars));
+        }
+
         // Optional: Add button handlers
         const quitBtn = document.getElementById('quitGameBtn');
         if (quitBtn) {
@@ -123,13 +143,48 @@
             };
         }
         const walletBtn = document.getElementById('connectWalletBtn');
+        const plaiBalanceSpan = document.getElementById('plaiBalance');
+        let currentAccount = null;
+        async function updateWalletUI(address) {
+            if (walletBtn && address) {
+                const short = address.slice(0, 6) + '....' + address.slice(-4);
+                walletBtn.textContent = short;
+            }
+        }
+        async function fetchPLAIBalance(address) {
+            if (!window.ethers || !address) return;
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const plaiAddress = "0x977EA2DDa60C1FdFfd4b0377b036D3871f2d01a9";
+                const abi = ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"];
+                const contract = new ethers.Contract(plaiAddress, abi, provider);
+                const raw = await contract.balanceOf(address);
+                // PLAI uses 6 decimals
+                const balance = ethers.utils.formatUnits(raw, 6);
+                if (plaiBalanceSpan) plaiBalanceSpan.textContent = balance;
+            } catch (err) {
+                if (plaiBalanceSpan) plaiBalanceSpan.textContent = '0.00';
+            }
+        }
         if (walletBtn) {
-            walletBtn.onclick = function() {
-                alert('Wallet connection coming soon!');
+            walletBtn.onclick = async function() {
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        const account = accounts[0];
+                        currentAccount = account;
+                        await updateWalletUI(account);
+                        await fetchPLAIBalance(account);
+                    } catch (err) {
+                        alert('Wallet connection failed: ' + err.message);
+                    }
+                } else {
+                    alert('MetaMask is not installed. Please install MetaMask to connect your wallet.');
+                }
             };
         }
-        // Example: Set PLAI balance (replace with real value from wallet later)
-        document.getElementById('plaiBalance').textContent = '123.45';
+        // Example: Set PLAI balance (replace with real value from wallet later, now handled by wallet connect)
+        // document.getElementById('plaiBalance').textContent = '123.45';
 
         // Load selected character from URL param and localStorage
         function getQueryParam(name) {
@@ -140,10 +195,47 @@
             const idx = parseInt(getQueryParam('char'), 10);
             let char = null;
             if (!isNaN(idx)) {
-                const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+                const saved = loadUserCharacters();
                 if (saved[idx]) char = saved[idx];
             }
+            // --- Ensure character object is complete and matches expected structure ---
+            let needsSave = false;
             if (char) {
+                // Default structure from characterdata.js
+                const defaults = {
+                    img: '',
+                    characterclass: '',
+                    level: 1,
+                    xp: 0,
+                    gold: 0,
+                    statpoints: 0,
+                    skillpoints: 0,
+                    inventory: [],
+                    equipped: {},
+                };
+                for (const key in defaults) {
+                    if (!(key in char)) {
+                        char[key] = defaults[key];
+                        needsSave = true;
+                    }
+                }
+                // Ensure equipped is an object
+                if (typeof char.equipped !== 'object' || char.equipped === null) {
+                    char.equipped = {};
+                    needsSave = true;
+                }
+                // Ensure inventory is an array
+                if (!Array.isArray(char.inventory)) {
+                    char.inventory = [];
+                    needsSave = true;
+                }
+                if (needsSave) {
+                    // Save back the fixed character object
+                    const chars = loadUserCharacters();
+                    chars[idx] = char;
+                    saveUserCharacters(chars);
+                }
+                // ...existing code for rendering side menu...
                 const img = document.getElementById('sideCharImg');
                 const lvl = document.getElementById('sideCharLevel');
                 const cls = document.getElementById('sideCharClass');
@@ -192,7 +284,7 @@
                     let char = null;
                     const idx = parseInt(getQueryParam('char'), 10);
                     if (!isNaN(idx)) {
-                        const saved = JSON.parse(localStorage.getItem('savedCharacters') || '[]');
+                        const saved = loadUserCharacters();
                         if (saved[idx]) char = saved[idx];
                     }
                     if (equipmentAvatar) {
@@ -202,8 +294,47 @@
                             equipmentAvatar.innerHTML = '';
                         }
                     }
-                    // Render empty grid (replace [] with inventory items array if available)
-                    renderInventoryGrid([]);
+                    // Equipment state
+                    if (!char.equipped) char.equipped = {};
+                    // Define onUnequip and onEquip once
+                    function onUnequip(slotType) {
+                        if (char.equipped[slotType]) {
+                            char.inventory.push(char.equipped[slotType]);
+                            char.equipped[slotType] = null;
+                            // Save per-user characters
+                            const chars = loadUserCharacters();
+                            chars[idx] = char;
+                            saveUserCharacters(chars);
+                            renderEquipment(char.equipped, onUnequip);
+                            renderInventoryGrid(char.inventory, char.equipped, onEquip);
+                        }
+                    }
+                    function onEquip(itemId, invIdx) {
+                        const itemDefs = window.items || [];
+                        const def = itemDefs.find(d => d.id === itemId);
+                        if (!def) return;
+                        // Use item type directly as slotType
+                        const slotTypes = ['head', 'body', 'legs', 'boots', 'amulet', 'lring', 'rring', 'weapon'];
+                        const slotType = def.type;
+                        if (slotTypes.includes(slotType)) {
+                            if (!char.equipped) char.equipped = {};
+                            if (char.equipped[slotType]) {
+                                // Already equipped, swap
+                                char.inventory[invIdx] = char.equipped[slotType];
+                            } else {
+                                char.inventory.splice(invIdx, 1);
+                            }
+                            char.equipped[slotType] = itemId;
+                            // Save per-user characters
+                            const chars = loadUserCharacters();
+                            chars[idx] = char;
+                            saveUserCharacters(chars);
+                            renderEquipment(char.equipped, onUnequip);
+                            renderInventoryGrid(char.inventory, char.equipped, onEquip);
+                        }
+                    }
+                    renderEquipment(char.equipped, onUnequip);
+                    renderInventoryGrid(char.inventory, char.equipped, onEquip);
                 });
                 closeBtn.addEventListener('click', function() {
                     popup.style.display = 'none';
@@ -218,9 +349,10 @@
         })();
 
         // Populate inventory grid with 35 empty slots (7x5)
-        function renderInventoryGrid(items) {
+        function renderInventoryGrid(items, equipped, onEquip) {
             const grid = document.getElementById('inventoryGrid');
             grid.innerHTML = '';
+            const itemDefs = window.items || [];
             for (let i = 0; i < 35; i++) {
                 let slot = document.createElement('div');
                 slot.className = 'inventory-slot';
@@ -234,9 +366,79 @@
                 slot.style.justifyContent = 'center';
                 slot.style.position = 'relative';
                 slot.style.overflow = 'hidden';
-                // If you want to show items, add logic here
+                // Show item if present
+                if (items[i]) {
+                    const itemId = items[i];
+                    const def = itemDefs.find(d => d.id === itemId);
+                    if (def) {
+                        const img = document.createElement('img');
+                        img.src = def.icon;
+                        img.alt = def.name;
+                        img.title = def.name;
+                        img.style.width = '64px';
+                        img.style.height = '64px';
+                        img.style.objectFit = 'contain';
+                        img.style.cursor = 'pointer';
+                        img.onclick = function() {
+                            if (onEquip) onEquip(itemId, i);
+                        };
+                        slot.appendChild(img);
+                    } else {
+                        slot.textContent = itemId;
+                    }
+                }
                 grid.appendChild(slot);
             }
+        }
+
+        // Use slotTypes as both the slot type list and the slot IDs
+        const slotTypes = ['head', 'body', 'legs', 'boots', 'amulet', 'lring', 'rring', 'weapon'];
+
+        function renderEquipment(equipped, onUnequip) {
+            const itemDefs = window.items || [];
+            slotTypes.forEach((type) => {
+                const slot = document.getElementById(type);
+                if (!slot) return;
+                // Always clear slot but keep label for later
+                let label = slot.querySelector('.equip-slot-label');
+                let labelText = label ? label.textContent : null;
+                slot.innerHTML = '';
+                const itemId = equipped[type];
+                if (itemId) {
+                    const def = itemDefs.find(d => d.id === itemId);
+                    if (def) {
+                        // Hide label when item is equipped
+                        if (labelText) {
+                            let labelEl = document.createElement('span');
+                            labelEl.className = 'equip-slot-label';
+                            labelEl.textContent = labelText;
+                            labelEl.style.display = 'none';
+                            slot.appendChild(labelEl);
+                        }
+                        const img = document.createElement('img');
+                        img.src = def.icon;
+                        img.alt = def.name;
+                        img.title = def.name;
+                        img.style.width = '64px';
+                        img.style.height = '64px';
+                        img.style.objectFit = 'contain';
+                        img.style.cursor = 'pointer';
+                        img.onclick = function() {
+                            if (onUnequip) onUnequip(type);
+                        };
+                        slot.appendChild(img);
+                    }
+                } else {
+                    // Show label when no item is equipped
+                    if (labelText) {
+                        let labelEl = document.createElement('span');
+                        labelEl.className = 'equip-slot-label';
+                        labelEl.textContent = labelText;
+                        labelEl.style.display = '';
+                        slot.appendChild(labelEl);
+                    }
+                }
+            });
         }
     </script>
 </body>
