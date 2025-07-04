@@ -183,6 +183,16 @@
             if (!username) return;
             localStorage.setItem(getUserCharacterKey(username), JSON.stringify(chars));
         }
+        // Load maxCharacterSlots from localStorage
+        function getMaxCharacterSlots() {
+            return parseInt(localStorage.getItem('maxCharacterSlots') || '3', 10);
+        }
+        // Load maxCharacterSlots for the logged-in player
+        function getMaxCharacterSlotsForPlayer() {
+            const username = getCurrentUsername();
+            if (!username) return 3; // Default to 3 if no user is logged in
+            return parseInt(localStorage.getItem(`maxCharacterSlots_${username}`) || '3', 10);
+        }
 
         let currentChar = 0;
         const charCard = document.getElementById('char-card');
@@ -234,11 +244,10 @@
         charNameOk.onclick = function() {
             const name = charNameInput.value.trim();
             if (!name) return;
-            // Get saved characters from localStorage
             let saved = loadUserCharacters();
-            // Limit to 3 characters
-            if (saved.length >= 3) {
-                alert('You can only save up to 3 characters.');
+            const maxChars = getMaxCharacterSlotsForPlayer();
+            if (saved.length >= maxChars) {
+                alert(`You can only save up to ${maxChars} characters.`);
                 return;
             }
             // Copy all properties from selected character, ensure all required fields are present
@@ -268,12 +277,12 @@
             // Redirect to game.html with the new character index
             window.location.href = 'game.html?char=' + (saved.length - 1);
         };
-        // Render saved characters
+        // Update renderSavedCharacters to use dynamic maxCharacterSlots
         function renderSavedCharacters() {
             const savedContainer = document.getElementById('saved-characters');
             savedContainer.innerHTML = '<h2>Saved Characters</h2>';
             let saved = loadUserCharacters();
-            const maxChars = 3;
+            const maxChars = getMaxCharacterSlotsForPlayer();
             if (saved.length === 0) {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.style.textAlign = 'center';
@@ -412,6 +421,41 @@
                 savedContainer.appendChild(cardRow);
             });
         }
+
+        // Update character saving logic to use dynamic maxCharacterSlots
+        charNameOk.onclick = function() {
+            const name = charNameInput.value.trim();
+            if (!name) return;
+            let saved = loadUserCharacters();
+            const maxChars = getMaxCharacterSlotsForPlayer();
+            if (saved.length >= maxChars) {
+                alert(`You can only save up to ${maxChars} characters.`);
+                return;
+            }
+            const baseChar = characters[currentChar];
+            const newChar = {
+                characterclass: baseChar.characterclass || '',
+                img: baseChar.img || '',
+                description: baseChar.description || '',
+                health: baseChar.health || 0,
+                attack: baseChar.attack || 0,
+                elementalattack: baseChar.elementalattack || 0,
+                defense: baseChar.defense || 0,
+                xp: 0,
+                gold: 0,
+                level: 1,
+                statpoints: baseChar.statpoints || 0,
+                skillpoints: baseChar.skillpoints || 0,
+                name: name,
+                inventory: (baseChar.starterItems ? [...baseChar.starterItems] : []),
+                equipped: {},
+            };
+            saved.push(newChar);
+            saveUserCharacters(saved);
+            charNamePopup.style.display = 'none';
+            window.location.href = 'game.html?char=' + (saved.length - 1);
+        };
+
         // Initial render
         renderCharacter();
         renderSavedCharacters();
